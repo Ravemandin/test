@@ -26,24 +26,22 @@ if "sub_choice" not in st.session_state:
 st.title("Let this fucking dnd thing work please")
 
 # === Main Menu ===
-if st.session_state.page == "main":
-    st.markdown("```\nWelcome to the Alchemy Lab!\n\n1. Browse Ingredients\n2. Browse Mixtures\n3. Search by Category\n4. Search by Safety Level\n5. Exit\n```")
-    
-    choice = st.text_input("Enter a number (1-5):", key="main_input").strip()
-
-    if st.button("Submit"):
-        if choice == "1":
-            st.session_state.page = "ingredients"
-        elif choice == "2":
-            st.session_state.page = "mixtures"
-        elif choice == "3":
-            st.session_state.page = "category"
-        elif choice == "4":
-            st.session_state.page = "safety"
-        elif choice == "5":
-            st.markdown("```\nGoodbye, Alchemist! May your brews be potent.\n```")
-        elif choice:
-            st.warning("Invalid input. Enter a number from 1 to 5.")
+if st.session_state.menu == "main":
+    st.subheader("What would you like to do?")
+    option = st.radio("Choose an option:", [
+        "Browse Ingredients",
+        "Browse Mixtures",
+        "Search by Category",
+        "Search by Safety Level"
+    ])
+    if option == "Browse Ingredients":
+        st.session_state.menu = "ingredients"
+    elif option == "Browse Mixtures":
+        st.session_state.menu = "mixtures"
+    elif option == "Search by Category":
+        st.session_state.menu = "category"
+    elif option == "Search by Safety Level":
+        st.session_state.menu = "safety"
     
 # === Ingredients ===
 elif st.session_state.page == "ingredients":
