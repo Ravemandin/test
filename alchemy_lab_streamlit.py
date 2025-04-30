@@ -44,6 +44,7 @@ if st.session_state.page == "main":
             st.markdown("```\nGoodbye, Alchemist! May your brews be potent.\n```")
         elif choice:
             st.warning("Invalid input. Enter a number from 1 to 5.")
+    
 # === Ingredients ===
 elif st.session_state.page == "ingredients":
     st.markdown("```\n-- INGREDIENT LIST --\nChoose a number to view details or 'back' to return.\n```")
