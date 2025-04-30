@@ -23,7 +23,7 @@ if "page" not in st.session_state:
 if "sub_choice" not in st.session_state:
     st.session_state.sub_choice = ""
 
-st.title("🧪 Alchemy Lab (Terminal Style)")
+st.title("Let this fucking dnd thing work please")
 
 # === Main Menu ===
 if st.session_state.page == "main":
