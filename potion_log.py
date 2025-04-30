@@ -1,0 +1,59 @@
+# Save this as potion_log.py
+
+import streamlit as st
+
+# Sample potion database
+potions = {
+    "Healing": [
+        {
+            "name": "Lesser Healing Potion",
+            "danger_level": "Low",
+            "ingredients": ["Pixie Dust", "Red Herb", "Crystal Water"],
+            "cost": "25 gold"
+        },
+        {
+            "name": "Greater Healing Potion",
+            "danger_level": "Medium",
+            "ingredients": ["Unicorn Hair", "Red Herb", "Holy Water"],
+            "cost": "75 gold"
+        }
+    ],
+    "Damage": [
+        {
+            "name": "Fire Bomb Potion",
+            "danger_level": "High",
+            "ingredients": ["Sulfur Ash", "Dragon Scale", "Oil"],
+            "cost": "100 gold"
+        },
+        {
+            "name": "Poison Draught",
+            "danger_level": "Medium",
+            "ingredients": ["Nightshade", "Snake Venom", "Rotten Root"],
+            "cost": "50 gold"
+        }
+    ],
+    "Buffs": [
+        {
+            "name": "Potion of Giant Strength",
+            "danger_level": "High",
+            "ingredients": ["Ogre Blood", "Troll Bone", "Mountain Salt"],
+            "cost": "120 gold"
+        }
+    ]
+}
+
+# Page setup
+st.set_page_config(page_title="🧪 D&D Potion Log", page_icon="🧙")
+
+st.title("🧪 D&D Potion Log")
+st.write("Select a category to view magical brews and their stats.")
+
+# Choose a category
+category = st.selectbox("Choose a potion category:", list(potions.keys()))
+
+# Show potions in the selected category
+for potion in potions[category]:
+    with st.expander(potion["name"]):
+        st.markdown(f"**Danger Level:** {potion['danger_level']}")
+        st.markdown(f"**Ingredients:** {', '.join(potion['ingredients'])}")
+        st.markdown(f"**Cost:** {potion['cost']}")
