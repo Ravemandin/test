@@ -28,21 +28,22 @@ st.title("Let this fucking dnd thing work please")
 # === Main Menu ===
 if st.session_state.page == "main":
     st.markdown("```\nWelcome to the Alchemy Lab!\n\n1. Browse Ingredients\n2. Browse Mixtures\n3. Search by Category\n4. Search by Safety Level\n5. Exit\n```")
-    choice = st.text_input("Enter a number (1-5):")
+    
+    choice = st.text_input("Enter a number (1-5):", key="main_input").strip()
 
-    if choice == "1":
-        st.session_state.page = "ingredients"
-    elif choice == "2":
-        st.session_state.page = "mixtures"
-    elif choice == "3":
-        st.session_state.page = "category"
-    elif choice == "4":
-        st.session_state.page = "safety"
-    elif choice == "5":
-        st.markdown("```\nGoodbye, Alchemist! May your brews be potent.\n```")
-    elif choice:
-        st.warning("Invalid input. Enter a number from 1 to 5.")
-
+    if st.button("Submit"):
+        if choice == "1":
+            st.session_state.page = "ingredients"
+        elif choice == "2":
+            st.session_state.page = "mixtures"
+        elif choice == "3":
+            st.session_state.page = "category"
+        elif choice == "4":
+            st.session_state.page = "safety"
+        elif choice == "5":
+            st.markdown("```\nGoodbye, Alchemist! May your brews be potent.\n```")
+        elif choice:
+            st.warning("Invalid input. Enter a number from 1 to 5.")
 # === Ingredients ===
 elif st.session_state.page == "ingredients":
     st.markdown("```\n-- INGREDIENT LIST --\nChoose a number to view details or 'back' to return.\n```")
