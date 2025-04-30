@@ -1,7 +1,14 @@
 import streamlit as st
 
-# You can paste your full alchemy_data dict here instead of importing it
-from updated_code_list import alchemy_data  
+# Paste your full alchemy_data dictionary here
+from updated_code_list import alchemy_data  # or paste the dict directly
+
+# Set page config
+st.set_page_config(page_title="Alchemy Lab", page_icon="🧪")
+
+# Session state for navigation
+if "menu" not in st.session_state:
+    st.session_state.menu = "main"
 
 def convert_to_bronze(amount, currency):
     return amount * alchemy_data["currency_rates"][currency]
@@ -17,13 +24,7 @@ def format_currency(amount):
     if bronze > 0 or not parts: parts.append(f"{bronze} Bronze")
     return " ".join(parts)
 
-# Track state
-if "page" not in st.session_state:
-    st.session_state.page = "main"
-if "sub_choice" not in st.session_state:
-    st.session_state.sub_choice = ""
-
-st.title("Let this fucking dnd thing work please")
+st.title("if this fucking thing doesn't work im going to kms")
 
 # === Main Menu ===
 if st.session_state.menu == "main":
@@ -42,83 +43,72 @@ if st.session_state.menu == "main":
         st.session_state.menu = "category"
     elif option == "Search by Safety Level":
         st.session_state.menu = "safety"
-    
-# === Ingredients ===
-elif st.session_state.page == "ingredients":
-    st.markdown("```\n-- INGREDIENT LIST --\nChoose a number to view details or 'back' to return.\n```")
-    ingredients = sorted(alchemy_data["ingredients"].keys())
-    for i, name in enumerate(ingredients, 1):
-        st.markdown(f"{i}. {name}")
-    choice = st.text_input("Ingredient number or 'back':", key="ing_choice")
 
-    if choice.lower() == "back":
-        st.session_state.page = "main"
-    elif choice.isdigit() and 1 <= int(choice) <= len(ingredients):
-        ing = ingredients[int(choice) - 1]
-        data = alchemy_data["ingredients"][ing]
-        st.markdown(f"```\n{ing}\nType: {data['type']} | Safety: {data['safety']}\nPrice: {data['price']} {data['currency']} ({convert_to_bronze(data['price'], data['currency'])} Bronze)\n\n[States]\nNatural: {data['states']['natural']}\nHeated: {data['states']['heated']}\nFrozen: {data['states']['frozen']}\n```")
-    elif choice:
-        st.warning("Invalid selection.")
+# === Ingredients ===
+elif st.session_state.menu == "ingredients":
+    ingredient = st.selectbox("Select an ingredient:", sorted(alchemy_data["ingredients"].keys()))
+    data = alchemy_data["ingredients"][ingredient]
+    st.markdown(f"### {ingredient}")
+    st.markdown(f"**Price:** {data['price']} {data['currency']} ({convert_to_bronze(data['price'], data['currency'])} Bronze)")
+    st.markdown(f"**Safety:** {data['safety']} | **Type:** {data['type']}")
+    st.markdown("**States:**")
+    st.markdown(f"- Natural: {data['states']['natural']}")
+    st.markdown(f"- Heated: {data['states']['heated']}")
+    st.markdown(f"- Frozen: {data['states']['frozen']}")
+    st.button("Back", on_click=lambda: st.session_state.update({"menu": "main"}))
 
 # === Mixtures ===
-elif st.session_state.page == "mixtures":
-    st.markdown("```\n-- MIXTURE LIST --\nChoose a number to view details or 'back' to return.\n```")
-    mixtures = sorted(alchemy_data["mixtures"].keys())
-    for i, name in enumerate(mixtures, 1):
-        stars = "★" * alchemy_data["mixtures"][name]["danger"]
-        st.markdown(f"{i}. {name} {stars}")
-    choice = st.text_input("Mixture number or 'back':", key="mix_choice")
+elif st.session_state.menu == "mixtures":
+    mixture = st.selectbox("Select a mixture:", sorted(alchemy_data["mixtures"].keys()))
+    data = alchemy_data["mixtures"][mixture]
+    st.markdown(f"### {mixture}")
+    st.markdown("**Ingredients:**")
+    total_bronze = 0
+    for ing in data["ingredients"]:
+        ing_data = alchemy_data["ingredients"][ing]
+        bronze = convert_to_bronze(ing_data["price"], ing_data["currency"])
+        total_bronze += bronze
+        st.markdown(f"- {ing}: {ing_data['price']} {ing_data['currency']} ({bronze} Bronze)")
+    st.markdown(f"**Effect:** {data['effect']}")
+    st.markdown(f"**Danger:** {'★' * data['danger']} | **Safety:** {data['safety']}")
+    st.markdown(f"**Category:** {data['category']}")
+    st.markdown(f"**Total Cost:** {format_currency(total_bronze)} ({total_bronze} Bronze)")
+    st.button("Back", on_click=lambda: st.session_state.update({"menu": "main"}))
 
-    if choice.lower() == "back":
-        st.session_state.page = "main"
-    elif choice.isdigit() and 1 <= int(choice) <= len(mixtures):
-        mix = mixtures[int(choice) - 1]
-        data = alchemy_data["mixtures"][mix]
-        total_cost = sum(
-            convert_to_bronze(alchemy_data["ingredients"][ing]["price"],
-                              alchemy_data["ingredients"][ing]["currency"])
-            for ing in data["ingredients"]
-        )
-        st.markdown(f"```\n{mix}\nEffect: {data['effect']}\nCategory: {data['category']}\nDanger: {'★' * data['danger']} | Safety: {data['safety']}\nTotal Cost: {format_currency(total_cost)} ({total_cost} Bronze)\n\nIngredients:\n" +
-                    "\n".join([f"- {ing}" for ing in data["ingredients"]]) + "\n```")
-    elif choice:
-        st.warning("Invalid selection.")
+# === Search by Category ===
+elif st.session_state.menu == "category":
+    cat = st.selectbox("Choose a category:", alchemy_data["categories"])
+    keyword = cat.lower().split()[0]
+    matches = {k: v for k, v in alchemy_data["mixtures"].items() if keyword in v["category"].lower()}
+    if matches:
+        mix = st.selectbox("Select a mixture:", list(matches.keys()))
+        data = matches[mix]
+        st.markdown(f"### {mix}")
+        total_bronze = sum(convert_to_bronze(alchemy_data["ingredients"][ing]["price"],
+                                             alchemy_data["ingredients"][ing]["currency"])
+                           for ing in data["ingredients"])
+        st.markdown(f"**Effect:** {data['effect']}")
+        st.markdown(f"**Danger:** {'★' * data['danger']} | **Safety:** {data['safety']}")
+        st.markdown(f"**Total Cost:** {format_currency(total_bronze)} ({total_bronze} Bronze)")
+    else:
+        st.warning("No mixtures found in this category.")
+    st.button("Back", on_click=lambda: st.session_state.update({"menu": "main"}))
 
-# === Category Search ===
-elif st.session_state.page == "category":
-    st.markdown("```\n-- CATEGORY LIST --\nChoose a number to view mixtures in that category or 'back'.\n```")
-    categories = alchemy_data["categories"]
-    for i, name in enumerate(categories, 1):
-        st.markdown(f"{i}. {name}")
-    choice = st.text_input("Category number or 'back':", key="cat_choice")
-
-    if choice.lower() == "back":
-        st.session_state.page = "main"
-    elif choice.isdigit() and 1 <= int(choice) <= len(categories):
-        selected = categories[int(choice) - 1]
-        keyword = selected.lower().split()[0]
-        matches = {k: v for k, v in alchemy_data["mixtures"].items() if keyword in v["category"].lower()}
-        if not matches:
-            st.warning("No mixtures found.")
-        else:
-            st.markdown("```\nMatching Mixtures:\n" + "\n".join([f"- {k}" for k in matches]) + "\n```")
-    elif choice:
-        st.warning("Invalid selection.")
-
-# === Safety Search ===
-elif st.session_state.page == "safety":
-    st.markdown("```\n-- SAFETY LEVELS --\n1. Safe\n2. Mid\n3. Dangerous\nEnter a number or 'back'\n```")
-    levels = ["Safe", "Mid", "Dangerous"]
-    choice = st.text_input("Safety level number or 'back':", key="safe_choice")
-
-    if choice.lower() == "back":
-        st.session_state.page = "main"
-    elif choice.isdigit() and 1 <= int(choice) <= 3:
-        selected = levels[int(choice) - 1]
-        matches = {k: v for k, v in alchemy_data["mixtures"].items() if v["safety"].lower() == selected.lower()}
-        if not matches:
-            st.warning("No mixtures found.")
-        else:
-            st.markdown("```\nMatching Mixtures:\n" + "\n".join([f"- {k}" for k in matches]) + "\n```")
-    elif choice:
-        st.warning("Invalid selection.")
+# === Search by Safety Level ===
+elif st.session_state.menu == "safety":
+    level = st.selectbox("Choose a safety level:", ["Safe", "Mid", "Dangerous"])
+    matches = {k: v for k, v in alchemy_data["mixtures"].items() if v["safety"].lower() == level.lower()}
+    if matches:
+        mix = st.selectbox("Select a mixture:", list(matches.keys()))
+        data = matches[mix]
+        st.markdown(f"### {mix}")
+        total_bronze = sum(convert_to_bronze(alchemy_data["ingredients"][ing]["price"],
+                                             alchemy_data["ingredients"][ing]["currency"])
+                           for ing in data["ingredients"])
+        st.markdown(f"**Effect:** {data['effect']}")
+        st.markdown(f"**Category:** {data['category']}")
+        st.markdown(f"**Danger:** {'★' * data['danger']} | **Safety:** {data['safety']}")
+        st.markdown(f"**Total Cost:** {format_currency(total_bronze)} ({total_bronze} Bronze)")
+    else:
+        st.warning("No mixtures found at this safety level.")
+    st.button("Back", on_click=lambda: st.session_state.update({"menu": "main"}))
