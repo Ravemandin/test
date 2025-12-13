@@ -1,0 +1,46 @@
+Question 1
+SELECT 
+vb_tsmart_state
+,COUNT(*)
+FROM `nth-station-397415.test.Murmurtest`
+GROUP BY 1
+ORDER BY 1 DESC
+
+
+Question 2
+SELECT 
+vb_tsmart_state
+,ROUND(AVG(DATE_DIFF(CURRENT_DATE(),SAFE.PARSE_DATE('%Y%m%d', vb_voterbase_dob),YEAR)))
+FROM `nth-station-397415.test.Murmurtest`
+GROUP BY 1
+ORDER BY 1 ASC
+Question 3
+SELECT 
+vb_tsmart_state
+,MAX(vb_firsttimeseen_voterid) AS first_date_Max
+FROM `nth-station-397415.test.Murmurtest`
+GROUP BY 1
+ORDER BY 1 ASC
+
+Question 4 
+SELECT
+ROUND((COUNTIF(vhsyn_vf_g2016_synthetic in ('A','E','Y'))/COUNT(*))*100,2) as Voted_percent
+,ROUND((COUNTIF(vhsyn_vf_g2016_synthetic in ('N','I'))/COUNT(*))*100,2) as Didnt_vote_percent
+,COUNT(*) as Total
+FROM `nth-station-397415.test.Murmurtest`
+
+Question 5
+SELECT
+vb_tsmart_state
+,ROUND(AVG(DATE_DIFF(CURRENT_DATE(),SAFE.PARSE_DATE('%Y%m%d', vb_voterbase_dob),YEAR))) as Average_age
+,ROUND((COUNTIF(vb_voterbase_gender in ('Male'))/COUNT(*))*100,2) as Male_Percent
+,ROUND((COUNTIF(vb_voterbase_gender in ('Female'))/COUNT(*))*100,2) as Female_Percent
+,ROUND((COUNTIF(vb_voterbase_voter_score in ('Never Voted'))/COUNT(*))*100,2) as NeverVoted_Percent
+,ROUND((COUNTIF(vb_voterbase_voter_score in ('Infrequent Voter'))/COUNT(*))*100,2) as NeverVoted_Percent
+,ROUND((COUNTIF(vb_voterbase_voter_score in ('Frequent Voter'))/COUNT(*))*100,2) as FrequentVoter_Percent
+,ROUND((COUNTIF(vb_voterbase_voter_score in ('Super Voter'))/COUNT(*))*100,2) as SuperVoter_Percent
+,ROUND((COUNTIF(vhsyn_vf_g2016_synthetic in ('A','E','Y'))/COUNT(*))*100,2) as Voted_percent
+,ROUND((COUNTIF(vhsyn_vf_g2016_synthetic in ('N','I'))/COUNT(*))*100,2) as Didnt_vote_percent
+,COUNT(*) as Total
+FROM `nth-station-397415.test.Murmurtest`
+GROUP BY 1
